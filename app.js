@@ -7,6 +7,7 @@ const closeModal = document.querySelector(".cart-item-confirm");
 
 const productsDom = document.querySelector(".products-center");
 
+const cart = [];
 // ? 1.Get Products
 class Products {
   getProducts() {
@@ -19,26 +20,47 @@ class UI {
     let result = "";
     products.forEach((item) => {
       result += `<div class="product">
-            <div class="img-container">
-              <img src=${item.imageUrl} class="product-img" />
-            </div>
-            <div class="product-desc">
-              <p class="product-price">$ ${item.price}</p>
-              <p class="product-title">${item.title}</p>
-            </div>
+      <div class="img-container">
+      <img src=${item.imageUrl} class="product-img" />
+      </div>
+      <div class="product-desc">
+      <p class="product-price">$ ${item.price}</p>
+      <p class="product-title">${item.title}</p>
+      </div>
             <button class="btn add-to-cart" data-id=${item.id}>
               <i class="fas fa-shopping-cart"></i>
               add to cart
-            </button>
+              </button>
           </div>`;
       productsDom.innerHTML = result;
+    });
+  }
+  getAddToCartBtn() {
+    const addToCartBtn = document.querySelectorAll(".add-to-cart");
+    const buttons = [...addToCartBtn];
+
+
+    buttons.forEach((btn) => {
+      const id = btn.dataset.id;
+      // ? check is it on cart?
+      const isInCart = cart.find((p) => p.id === id);
+      if(isInCart) {
+        btn.innerHTML = "In cart"
+        btn.disabled = true
+      }
+      btn.addEventListener('click', (event) => console.log(event.target.dataset.id))
+      
+      // ? get products from (products class)
+      // ? add to cart
+      // ? save cart in local storage
+
     });
   }
 }
 // ? 3.Save to Local Storage
 class Storage {
- static saveProducts(products) {
-    localStorage.setItem('products', JSON.stringify(products))
+  static saveProducts(products) {
+    localStorage.setItem("products", JSON.stringify(products));
   }
 }
 
@@ -47,7 +69,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const productsData = products.getProducts();
   const ui = new UI();
   ui.displayProducts(productsData);
-  Storage.saveProducts(productsData)
+  ui.getAddToCartBtn();
+  Storage.saveProducts(productsData);
 });
 
 function showModalFunction() {
