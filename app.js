@@ -6,6 +6,8 @@ const backDrop = document.querySelector(".backdrop");
 const closeModal = document.querySelector(".cart-item-confirm");
 
 const productsDom = document.querySelector(".products-center");
+const cartTotal = document.querySelector(".cart-total");
+const cartItems = document.querySelector(".cart-items");
 
 let cart = [];
 // ? 1.Get Products
@@ -57,8 +59,22 @@ class UI {
         // ? save cart in local storage
         Storage.saveCart(cart);
         // ? update cart value
+        this.setCartValue(cart)
+        // ? get cart from storage
       });
     });
+  }
+  setCartValue(cart) {
+    // ? cart items
+
+    // ? calc total price
+    let tempCartItems = 0;
+    let totalPrice = cart.reduce((acc, curr) => {
+      tempCartItems += curr.quantity;
+      return acc + curr.quantity * curr.price;
+    }, 0);
+    cartTotal.innerHTML = `total price : ${totalPrice.toFixed(2)} $`;
+    cartItems.innerHTML = tempCartItems
   }
 }
 // ? 3.Save to Local Storage
@@ -74,7 +90,7 @@ class Storage {
     localStorage.setItem("cart", JSON.stringify(cart));
   }
 }
-
+// ? when Dom loaded!
 document.addEventListener("DOMContentLoaded", () => {
   const products = new Products();
   const productsData = products.getProducts();
