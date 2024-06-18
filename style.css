@@ -221,6 +221,9 @@ body {
   cursor: pointer;
   font-weight: bold;
 }
+.fa-trash-alt {
+  cursor: pointer;
+}
 .remove-item {
   cursor: pointer;
 }

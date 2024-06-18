@@ -8,6 +8,7 @@ const closeModal = document.querySelector(".cart-item-confirm");
 const productsDom = document.querySelector(".products-center");
 const cartTotal = document.querySelector(".cart-total");
 const cartItems = document.querySelector(".cart-items");
+const cartContent = document.querySelector(".cart-content");
 
 let cart = [];
 // ? 1.Get Products
@@ -53,14 +54,15 @@ class UI {
         event.target.innerHTML = "In cart";
         event.target.disabled;
         // ? get products from (products class)
-        const addedProduct = Storage.getProduct(id);
+        const addedProduct = { ...Storage.getProduct(id), quantity: 1 };
         // ? add to cart
-        cart = [...cart, { ...addedProduct, quantity: 1 }];
+        cart = [...cart, addedProduct];
         // ? save cart in local storage
         Storage.saveCart(cart);
         // ? update cart value
-        this.setCartValue(cart)
-        // ? get cart from storage
+        this.setCartValue(cart);
+        // ? add to cart item
+        this.addCartItem(addedProduct);
       });
     });
   }
@@ -74,7 +76,31 @@ class UI {
       return acc + curr.quantity * curr.price;
     }, 0);
     cartTotal.innerHTML = `total price : ${totalPrice.toFixed(2)} $`;
-    cartItems.innerHTML = tempCartItems
+    cartItems.innerHTML = tempCartItems;
+  }
+  addCartItem(cartItem) {
+    const div = document.createElement("div");
+    div.classList.add("cart-item");
+    div.innerHTML = `<img class="cart-item-img" src=${cartItem.imageUrl} />
+            <div class="cart-item-desc">
+              <h4>${cartItem.title}</h4>
+              <h5>$ ${cartItem.price}</h5>
+            </div>
+            <div class="cart-item-conteoller">
+              <i class="fas fa-chevron-up"></i>
+              <p>${cartItem.quantity}</p>
+              <i class="fas fa-chevron-down"></i>
+              </div>
+              <i class="far fa-trash-alt"></i> `;
+    cartContent.appendChild(div);
+  }
+  setUpApp() {
+    // ? get cart from storage
+    cart = Storage.getCart() || [];
+    // ? add cart item
+    cart.forEach(cartItem => this.addCartItem(cartItem))
+    // ?
+    this.setCartValue(cart)
   }
 }
 // ? 3.Save to Local Storage
@@ -89,12 +115,17 @@ class Storage {
   static saveCart(cart) {
     localStorage.setItem("cart", JSON.stringify(cart));
   }
+  static getCart(id) {
+   return JSON.parse(localStorage.getItem("cart"));
+  }
 }
 // ? when Dom loaded!
 document.addEventListener("DOMContentLoaded", () => {
   const products = new Products();
   const productsData = products.getProducts();
   const ui = new UI();
+  // ? get cart and setup app
+  ui.setUpApp()
   ui.displayProducts(productsData);
   ui.getAddToCartBtn();
   Storage.saveProducts(productsData);
