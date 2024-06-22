@@ -9,6 +9,7 @@ const productsDom = document.querySelector(".products-center");
 const cartTotal = document.querySelector(".cart-total");
 const cartItems = document.querySelector(".cart-items");
 const cartContent = document.querySelector(".cart-content");
+const clearCart = document.querySelector(".clear-cart");
 
 let cart = [];
 // ? 1.Get Products
@@ -45,7 +46,7 @@ class UI {
     buttons.forEach((btn) => {
       const id = btn.dataset.id;
       // ? check is it on cart?
-      const isInCart = cart.find((p) => p.id === id);
+      const isInCart = cart.find((p) => p.id === parseInt(id));
       if (isInCart) {
         btn.innerHTML = "In cart";
         btn.disabled = true;
@@ -96,11 +97,24 @@ class UI {
   }
   setUpApp() {
     // ? get cart from storage
-    cart = Storage.getCart() || [];
+    cart = Storage.getCart();
     // ? add cart item
-    cart.forEach(cartItem => this.addCartItem(cartItem))
+    cart.forEach((cartItem) => this.addCartItem(cartItem));
     // ?
-    this.setCartValue(cart)
+    this.setCartValue(cart);
+  }
+  cartLogic() {
+    // ? Clear Cart
+    clearCart.addEventListener("click", () => {
+      cart.forEach((cItem) => this.removeItem(cItem.id));
+    });
+  }
+  removeItem(id) {
+    // ? update cart
+    cart = cart.filter((cItem) => cItem.id !== id);
+    // ? update cart and storage
+    this.setCartValue(cart);
+    Storage.saveCart(cart);
   }
 }
 // ? 3.Save to Local Storage
@@ -116,7 +130,9 @@ class Storage {
     localStorage.setItem("cart", JSON.stringify(cart));
   }
   static getCart(id) {
-   return JSON.parse(localStorage.getItem("cart"));
+    return JSON.parse(localStorage.getItem("cart"))
+      ? JSON.parse(localStorage.getItem("cart"))
+      : [];
   }
 }
 // ? when Dom loaded!
@@ -125,9 +141,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const productsData = products.getProducts();
   const ui = new UI();
   // ? get cart and setup app
-  ui.setUpApp()
+  ui.setUpApp();
   ui.displayProducts(productsData);
   ui.getAddToCartBtn();
+  ui.cartLogic();
   Storage.saveProducts(productsData);
 });
 
