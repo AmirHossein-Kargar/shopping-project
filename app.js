@@ -12,6 +12,8 @@ const cartContent = document.querySelector(".cart-content");
 const clearCart = document.querySelector(".clear-cart");
 
 let cart = [];
+let buttonsDom = [];
+
 // ? 1.Get Products
 class Products {
   getProducts() {
@@ -40,10 +42,10 @@ class UI {
     });
   }
   getAddToCartBtn() {
-    const addToCartBtn = document.querySelectorAll(".add-to-cart");
-    const buttons = [...addToCartBtn];
-
-    buttons.forEach((btn) => {
+    const addToCartBtn = [...document.querySelectorAll(".add-to-cart")];
+    // const buttonsDom = addToCartBtn;
+    buttonsDom = addToCartBtn;
+    addToCartBtn.forEach((btn) => {
       const id = btn.dataset.id;
       // ? check is it on cart?
       const isInCart = cart.find((p) => p.id === parseInt(id));
@@ -88,11 +90,11 @@ class UI {
               <h5>$ ${cartItem.price}</h5>
             </div>
             <div class="cart-item-conteoller">
-              <i class="fas fa-chevron-up"></i>
+              <i class="fas fa-chevron-up" data-id=${cartItem.id}></i>
               <p>${cartItem.quantity}</p>
-              <i class="fas fa-chevron-down"></i>
+              <i class="fas fa-chevron-down" data-id=${cartItem.id}></i>
               </div>
-              <i class="far fa-trash-alt"></i> `;
+              <i class="far fa-trash-alt" data-id=${cartItem.id}></i> `;
     cartContent.appendChild(div);
   }
   setUpApp() {
@@ -104,10 +106,14 @@ class UI {
     this.setCartValue(cart);
   }
   cartLogic() {
-    // ? Clear Cart
-    clearCart.addEventListener("click", () => {
-      cart.forEach((cItem) => this.removeItem(cItem.id));
-    });
+    clearCart.addEventListener("click", () => this.clearCart());
+  }
+  clearCart() {
+    cart.forEach((cItem) => this.removeItem(cItem.id));
+    while (cartContent.children.length) {
+      cartContent.removeChild(cartContent.children[0]);
+    }
+    closeModalFunction();
   }
   removeItem(id) {
     // ? update cart
@@ -115,6 +121,15 @@ class UI {
     // ? update cart and storage
     this.setCartValue(cart);
     Storage.saveCart(cart);
+    // ? get buttons and change it to "default"
+    this.getSingleButton(id)
+  }
+  getSingleButton(id) {
+    const button = buttonsDom.find(
+      (btn) => parseInt(btn.dataset.id) === parseInt(id)
+    );
+    button.innerText = "add to cart";
+    button.disabled = false;
   }
 }
 // ? 3.Save to Local Storage
