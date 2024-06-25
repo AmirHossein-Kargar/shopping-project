@@ -107,6 +107,21 @@ class UI {
   }
   cartLogic() {
     clearCart.addEventListener("click", () => this.clearCart());
+    cartContent.addEventListener("click", (event) => {
+      if (event.target.classList.contains("fa-chevron-up")) {
+        console.log(event.target.dataset.id);
+        const addQuantity = event.target;
+        // ? get item from cart
+        const addedItem = cart.find(cItem => cItem.id == addQuantity.dataset.id)
+        addedItem.quantity++
+        // ? update cart value
+        this.setCartValue(cart)
+        // ? save cart
+        Storage.saveCart(cart)
+        // ? update cart item in ui
+        addQuantity.nextElementSibling.innerText = addedItem.quantity
+      }
+    });
   }
   clearCart() {
     cart.forEach((cItem) => this.removeItem(cItem.id));
@@ -122,7 +137,7 @@ class UI {
     this.setCartValue(cart);
     Storage.saveCart(cart);
     // ? get buttons and change it to "default"
-    this.getSingleButton(id)
+    this.getSingleButton(id);
   }
   getSingleButton(id) {
     const button = buttonsDom.find(
