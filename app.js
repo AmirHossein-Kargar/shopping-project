@@ -109,17 +109,37 @@ class UI {
     clearCart.addEventListener("click", () => this.clearCart());
     cartContent.addEventListener("click", (event) => {
       if (event.target.classList.contains("fa-chevron-up")) {
-        console.log(event.target.dataset.id);
         const addQuantity = event.target;
         // ? get item from cart
-        const addedItem = cart.find(cItem => cItem.id == addQuantity.dataset.id)
-        addedItem.quantity++
+        const addedItem = cart.find(
+          (cItem) => cItem.id == addQuantity.dataset.id
+        );
+        addedItem.quantity++;
         // ? update cart value
-        this.setCartValue(cart)
+        this.setCartValue(cart);
         // ? save cart
-        Storage.saveCart(cart)
+        Storage.saveCart(cart);
         // ? update cart item in ui
-        addQuantity.nextElementSibling.innerText = addedItem.quantity
+        addQuantity.nextElementSibling.innerText = addedItem.quantity;
+      } else if (event.target.classList.contains("fa-trash-alt")) {
+        const removeItem = event.target;
+        const _removedItem = cart.find((c) => c.id == removeItem.dataset.id);
+        this.removeItem(_removedItem.id);
+        Storage.saveCart(cart);
+        cartContent.removeChild(removeItem.parentElement);
+        // ? remove from cart item
+      } else if (event.target.classList.contains("fa-chevron-down")) {
+        const subQuantity = event.target;
+        const subtractedItem = cart.find((c) => c.id == subQuantity.dataset.id);
+        if (subtractedItem.quantity === 1) {
+          this.removeItem(subtractedItem.id);
+          cartContent.removeChild(subQuantity.parentElement.parentElement);
+          return;
+        }
+        subtractedItem.quantity--;
+        this.setCartValue(cart);
+        Storage.saveCart(cart);
+        subQuantity.previousElementSibling.innerText = subtractedItem.quantity;
       }
     });
   }
